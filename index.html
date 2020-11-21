@@ -1,0 +1,80 @@
+<html ng-app="driveApp">
+<head>
+	<script>
+		window.gapiCallbacks=[];
+
+		function gapiLoaded(){
+			gapi.auth.init(function() {
+				gapi.client.load('drive', 'v2').then(function () {
+					var GapiQueue = function () {
+						this.push = function (callback) {
+							setTimeout(callback, 0);
+						};
+					};
+
+					var _old_gapiCallbacks = window.gapiCallbacks;
+
+					window.gapiCallbacks = new GapiQueue();
+
+					_old_gapiCallbacks.forEach(function (callback) {
+						window.gapiCallbacks.push(callback);
+					});
+				},function(reason){
+					console.err(reason);
+				});
+			});
+		}
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+
+	<script src="drive-controller.js"></script>
+	<script src="gapi-auth-service.js"></script>
+	<script src="drive-service.js"></script>
+</head>
+<body>
+<div ng-controller="driveController">
+
+	<h2>What is it?</h2>
+	<p>This is a demonstration app for Google login and Drive. It is a sample that shows how to handle logging in with Google and how to store and link files in the user's Drive.</p>
+	<p>It uses AngularJS as the framework.</p>
+	<h2>How to use</h2>
+	<p>At the Auth section, you can see whether you are logged in or not, and also you can log in. Logging in is done via Google auth.</p>
+	<p>At the Drive section, you can upload images to your drive account and see them below. The exact sequence of actions are:</p>
+	<ul>
+		<li>Creates a folder to store all files (or just checks that it exists and use that)</li>
+		<li>Inserts the file</li>
+		<li>Grant view permission to anyone and returns the links</li>
+	</ul>
+	<p><i>Note:</i> If you log in, then you should revoke access from this app at the <a href="https://security.google.com/settings/security/permissions">Account Permissions</a> page.
+		Also you should delete the <i>Drive API From JS Sample</i> directory from your <a href="https://drive.google.com/drive/u/0/my-drive">Drive</a>.
+	</p>
+
+
+	<h2>Auth section</h2>
+	<div ng-show="checkingLogin">Checking login status...</div>
+	Login status:{{loggedIn}}
+	<button ng-disabled="checkingLogin || loggedIn" ng-click="login()">Log In</button>
+
+	<div ng-show="loggedIn">
+		<h2>Drive section</h2>
+		<button ng-disabled="uploading"    ng-click="upload()" >Upload image</button>
+		<input type="file" id="uploadImage" accept="image/*" onchange="angular.element(this).scope().upload()" style="display:none;">
+		<div ng-show="uploading">Uploading...</div>
+		
+		<h3>Images:</h3>
+		<div ng-show="!images.length">No uploaded images yet</div>
+		<div ng-repeat="image in images" style="max-width:300px;max-height:300px;">
+			<img ng-src="{{image}}" style="max-width: 100%;max-height: 100%;">
+		</div>
+		<div ng-repeat="image in myData.fromServer" style="max-width:300px;max-height:300px;">
+			<img ng-src="{{'data:image/png;base64,'+image.Data}}" style="max-width: 100%;max-height: 100%;">
+		</div>
+
+		
+	</div>
+</div>
+
+<script src="https://apis.google.com/js/client.js?onload=gapiLoaded"></script>
+</body>
+</html>
