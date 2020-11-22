@@ -17,4 +17,4 @@ _Note:_ The app must listen on port 8080, because that is the only whitelisted o
   * Add a valid origin
   * Take note of the Client ID
 * Enable Drive API
-* At the gapi-auth-service there is a client id, change it to your project's
+* At the gapi-auth-service there is a client id, change it to your project
